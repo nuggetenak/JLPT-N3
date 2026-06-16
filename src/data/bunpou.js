@@ -214,6 +214,55 @@ export const BUNPOU_QUESTIONS = [
     ans: 0,
     exp: "〜かどうか = apakah ~ atau tidak. 〜かどうか の前は普通形（辞書形/ている形）。出席できるかどうか = apakah bisa hadir atau tidak.",
   },
+
+  // ─────────────────────────────────────────────
+  // 問題5（続き）: 文章の文法 — 追加  (B21–B25)
+  // ─────────────────────────────────────────────
+  {
+    id: "b21",
+    cat: "📝 問題5｜文章の文法",
+    text: "天候が悪かった（　）、試合は予定通り行われました。",
+    q: "（　）に入る最も適切なものはどれですか？",
+    opts: ["において", "にもかかわらず", "によって", "に対して"],
+    ans: 1,
+    exp: "〜にもかかわらず = meskipun / despite (berlawanan ekspektasi). 天候が悪かったにもかかわらず = meski cuaca buruk (tetap diadakan). 逆接の高度な表現！N3重要文法。",
+  },
+  {
+    id: "b22",
+    cat: "📝 問題5｜文章の文法",
+    text: "彼はほとんど日本語が話せない（　）、なんとかコミュニケーションを取っています。",
+    q: "（　）に入る最も適切なものはどれですか？",
+    opts: ["ので", "から", "のに", "ために"],
+    ans: 2,
+    exp: "〜のに = meskipun (kontras/mengejutkan). 話せないのに = padahal tidak bisa berbicara, tapi (tetap bisa komunikasi). ※のでは順接（sebab-akibat）— ここでは逆説！",
+  },
+  {
+    id: "b23",
+    cat: "📝 問題5｜文章の文法",
+    text: "今すぐ決めなくても（　）ですよ。ゆっくり考えてください。",
+    q: "（　）に入る最も適切なものはどれですか？",
+    opts: ["いる", "ある", "する", "いい"],
+    ans: 3,
+    exp: "〜なくてもいい = tidak perlu ~. 今すぐ決めなくてもいい = tidak perlu memutuskan sekarang. ⇔〜なければならない（= harus）の反対！",
+  },
+  {
+    id: "b24",
+    cat: "📝 問題5｜文章の文法",
+    text: "道が混んでいる（　）、地下鉄で行った方が早いですよ。",
+    q: "（　）に入る最も適切なものはどれですか？",
+    opts: ["ので", "のに", "でも", "として"],
+    ans: 0,
+    exp: "〜ので = karena (sebab-akibat logis/objektif). 道が混んでいるので = karena jalannya macet. ※のに は逆接（meskipun）— ここでは理由を述べているのでので が正解！",
+  },
+  {
+    id: "b25",
+    cat: "📝 問題5｜文章の文法",
+    text: "子どもはもちろん（　）、大人も楽しめる映画です。",
+    q: "（　）に入る最も適切なものはどれですか？",
+    opts: ["ではなく", "だけでなく", "ながら", "ばかり"],
+    ans: 1,
+    exp: "〜だけでなく = tidak hanya ~ (menambahkan info lain). 子どもだけでなく大人も = bukan hanya anak-anak, orang dewasa pun. 「も」とセットで使う！N3頻出。",
+  },
 ]
 
 export const BUNPOU_CONFIG = {
@@ -224,5 +273,6 @@ export const BUNPOU_CONFIG = {
   color: "#2563EB",
   bg: "#EFF6FF",
   timeLimit: 70 * 60, // 70 minutes
-  description: "のに・ながら・ように・はずだ・使役・受け身・授受・たら・ても",
+  description: "のに・ながら・ように・はずだ・使役・受け身・授受・たら・ても・にもかかわらず・ので・だけでなく",
 }
+
