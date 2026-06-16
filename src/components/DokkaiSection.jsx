@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { DOKKAI_PASSAGES, DOKKAI_CONFIG, TOTAL_DOKKAI_QS } from '../data/index.js'
-import { LETTERS, calcDokkaiScore } from '../utils/scoring.js'
+import { LETTERS, calcDokkaiScore, shuffleOptions } from '../utils/scoring.js'
 import ProgressHeader from './ui/ProgressHeader.jsx'
 import { OptionButton, ExplanationBox } from './ui/index.jsx'
 
@@ -8,12 +8,18 @@ import { OptionButton, ExplanationBox } from './ui/index.jsx'
  * Reading comprehension section.
  * Passages + questions are imported directly from the data layer.
  *
+ * Each passage's question options are reshuffled fresh on every mount
+ * (i.e. every attempt), same policy as QuizSection.
+ *
  * @param {{
  *   timeLeft: number,
- *   onComplete: (score: number) => void,
+ *   onComplete: (score: number, session: { passages: import('../data/dokkai').Passage[], answerMap: Record<string, number> }) => void,
  * }} props
  */
 export default function DokkaiSection({ timeLeft, onComplete }) {
+  const [shuffledPassages] = useState(() =>
+    DOKKAI_PASSAGES.map((p) => ({ ...p, qs: shuffleOptions(p.qs) }))
+  )
   const [passageIdx, setPassageIdx] = useState(0)
   const [qIdx, setQIdx] = useState(0)
   const [selected, setSelected] = useState(null)
@@ -21,18 +27,18 @@ export default function DokkaiSection({ timeLeft, onComplete }) {
   // { [questionId]: selectedOptionIndex }
   const [answerMap, setAnswerMap] = useState({})
 
-  const passage = DOKKAI_PASSAGES[passageIdx]
+  const passage = shuffledPassages[passageIdx]
   const q = passage.qs[qIdx]
   const answered = selected !== null
   const isCorrect = selected === q.ans
 
   // Global question index across all passages (for progress bar)
   let totalBefore = 0
-  for (let i = 0; i < passageIdx; i++) totalBefore += DOKKAI_PASSAGES[i].qs.length
+  for (let i = 0; i < passageIdx; i++) totalBefore += shuffledPassages[i].qs.length
   const globalIdx = totalBefore + qIdx
   const progress = ((globalIdx + (answered ? 1 : 0)) / TOTAL_DOKKAI_QS) * 100
 
-  const isLastQ = passageIdx === DOKKAI_PASSAGES.length - 1 && qIdx === passage.qs.length - 1
+  const isLastQ = passageIdx === shuffledPassages.length - 1 && qIdx === passage.qs.length - 1
 
   function pick(i) {
     if (answered) return
@@ -44,7 +50,10 @@ export default function DokkaiSection({ timeLeft, onComplete }) {
   function next() {
     if (isLastQ) {
       const finalMap = { ...answerMap, [q.id]: selected }
-      onComplete(calcDokkaiScore(DOKKAI_PASSAGES, finalMap))
+      onComplete(calcDokkaiScore(shuffledPassages, finalMap), {
+        passages: shuffledPassages,
+        answerMap: finalMap,
+      })
       return
     }
 

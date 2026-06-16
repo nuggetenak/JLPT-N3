@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { LETTERS, calcScore } from '../utils/scoring.js'
+import { LETTERS, calcScore, shuffleOptions } from '../utils/scoring.js'
 import ProgressHeader from './ui/ProgressHeader.jsx'
 import { OptionButton, ExplanationBox } from './ui/index.jsx'
 
@@ -7,23 +7,29 @@ import { OptionButton, ExplanationBox } from './ui/index.jsx'
  * Generic quiz section used for both 文字・語彙 and 文法.
  * Receives questions + section config as props — completely data-agnostic.
  *
+ * Option order is reshuffled fresh on every mount (i.e. every time the
+ * section is started or retried), so the correct answer's letter position
+ * is never memorizable across attempts.
+ *
  * @param {{
  *   questions: import('../data/goi').Question[],
  *   config: { title: string, color: string, bg: string },
  *   timeLeft: number,
- *   onComplete: (score: number) => void,
+ *   onComplete: (score: number, session: { questions: import('../data/goi').Question[], answers: (number|null)[] }) => void,
  * }} props
  */
 export default function QuizSection({ questions, config, timeLeft, onComplete }) {
+  // Shuffle once per mount (= once per attempt), not on every render.
+  const [shuffled] = useState(() => shuffleOptions(questions))
   const [qIdx, setQIdx] = useState(0)
   const [selected, setSelected] = useState(null)
   const [showExp, setShowExp] = useState(false)
-  const [answers, setAnswers] = useState(() => Array(questions.length).fill(null))
+  const [answers, setAnswers] = useState(() => Array(shuffled.length).fill(null))
 
-  const q = questions[qIdx]
+  const q = shuffled[qIdx]
   const answered = selected !== null
   const isCorrect = selected === q.ans
-  const progress = ((qIdx + (answered ? 1 : 0)) / questions.length) * 100
+  const progress = ((qIdx + (answered ? 1 : 0)) / shuffled.length) * 100
 
   function pick(i) {
     if (answered) return
@@ -37,23 +43,25 @@ export default function QuizSection({ questions, config, timeLeft, onComplete })
   }
 
   function next() {
-    if (qIdx < questions.length - 1) {
+    if (qIdx < shuffled.length - 1) {
       setQIdx((n) => n + 1)
       setSelected(null)
       setShowExp(false)
     } else {
-      onComplete(calcScore(questions, answers))
+      const finalAnswers = [...answers]
+      finalAnswers[qIdx] = selected
+      onComplete(calcScore(shuffled, finalAnswers), { questions: shuffled, answers: finalAnswers })
     }
   }
 
-  const isLast = qIdx === questions.length - 1
+  const isLast = qIdx === shuffled.length - 1
 
   return (
     <div style={{ minHeight: '100vh', background: config.bg, fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
       <ProgressHeader
         title={config.title}
         current={qIdx + 1}
-        total={questions.length}
+        total={shuffled.length}
         timeLeft={timeLeft}
         color={config.color}
         progress={progress}
