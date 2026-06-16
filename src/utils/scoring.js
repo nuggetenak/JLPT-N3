@@ -2,6 +2,25 @@
 export const LETTERS = ['A', 'B', 'C', 'D']
 
 /**
+ * Shuffle option order for a question array, updating `ans` indices accordingly.
+ * Used to randomize answer positions on retry so patterns can't be memorized.
+ * @param {import('../data/goi').Question[]} questions
+ * @returns {import('../data/goi').Question[]}
+ */
+export function shuffleOptions(questions) {
+  return questions.map((q) => {
+    const correctText = q.opts[q.ans]
+    // Fisher-Yates shuffle on a copy
+    const shuffled = [...q.opts]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return { ...q, opts: shuffled, ans: shuffled.indexOf(correctText) }
+  })
+}
+
+/**
  * Format seconds into M:SS string.
  * @param {number} seconds
  * @returns {string}
@@ -53,13 +72,13 @@ export function getLevel(pct) {
 /**
  * Build study advice lines based on section scores.
  * @param {{ goi: number|null, bunpou: number|null, dokkai: number|null }} scores
- * @param {number} dokkaiMax
+ * @param {{ goi: number, bunpou: number, dokkai: number }} maxes  - max possible score per section
  * @returns {{ emoji: string, title: string, detail: string }[]}
  */
-export function buildAdvice(scores, dokkaiMax) {
-  const gp = scores.goi    !== null ? Math.round((scores.goi    / 20)        * 100) : 100
-  const bp = scores.bunpou !== null ? Math.round((scores.bunpou / 20)        * 100) : 100
-  const dp = scores.dokkai !== null ? Math.round((scores.dokkai / dokkaiMax) * 100) : 100
+export function buildAdvice(scores, maxes) {
+  const gp = scores.goi    !== null ? Math.round((scores.goi    / maxes.goi)    * 100) : 100
+  const bp = scores.bunpou !== null ? Math.round((scores.bunpou / maxes.bunpou) * 100) : 100
+  const dp = scores.dokkai !== null ? Math.round((scores.dokkai / maxes.dokkai) * 100) : 100
 
   const lines = []
   if (gp < 70) lines.push({ emoji: '📝', title: '語彙を強化しましょう',   detail: 'Anki等で漢字を毎日10語復習。音読も効果的！同じ読みで意味が違う漢字（性格 vs 正確）に特に注意。' })
