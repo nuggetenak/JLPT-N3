@@ -1,24 +1,26 @@
 import { useState } from 'react'
-import { SECTIONS, TOTAL_DOKKAI_QS } from '../data/index.js'
+import { SECTIONS, TOTAL_GOI_QS, TOTAL_BUNPOU_QS, TOTAL_DOKKAI_QS } from '../data/index.js'
 import { buildAdvice } from '../utils/scoring.js'
 
-const TOTALS = { goi: 20, bunpou: 20, dokkai: TOTAL_DOKKAI_QS }
+const TOTALS = { goi: TOTAL_GOI_QS, bunpou: TOTAL_BUNPOU_QS, dokkai: TOTAL_DOKKAI_QS }
 
 /**
  * @param {{
  *   scores: { goi: number|null, bunpou: number|null, dokkai: number|null },
+ *   sessions: { goi: object|null, bunpou: object|null, dokkai: object|null },
  *   onBack: () => void,
+ *   onReview: (sectionKey: string) => void,
  * }} props
  */
-export default function Results({ scores, onBack }) {
+export default function Results({ scores, sessions, onBack, onReview }) {
   const [tab, setTab] = useState('summary')
 
-  const totalMax = 20 + 20 + TOTAL_DOKKAI_QS
+  const totalMax = TOTAL_GOI_QS + TOTAL_BUNPOU_QS + TOTAL_DOKKAI_QS
   const total = (scores.goi ?? 0) + (scores.bunpou ?? 0) + (scores.dokkai ?? 0)
   const pct = Math.round((total / totalMax) * 100)
   const pass = pct >= 70
 
-  const advice = buildAdvice(scores, TOTAL_DOKKAI_QS)
+  const advice = buildAdvice(scores, TOTALS)
 
   return (
     <div
@@ -150,9 +152,31 @@ export default function Results({ scores, onBack }) {
                       />
                     </div>
                     <div
-                      style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, textAlign: 'right' }}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginTop: 4,
+                      }}
                     >
-                      {p}%
+                      <div style={{ fontSize: 11, color: '#9CA3AF' }}>{p}%</div>
+                      {sessions?.[s.key] && (
+                        <button
+                          onClick={() => onReview(s.key)}
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: s.color,
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0,
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          📝 間違えた問題を見る →
+                        </button>
+                      )}
                     </div>
                   </div>
                 )

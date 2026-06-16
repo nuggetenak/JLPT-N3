@@ -1,18 +1,21 @@
-import { SECTIONS, TOTAL_DOKKAI_QS } from '../data/index.js'
+import { SECTIONS, TOTAL_GOI_QS, TOTAL_BUNPOU_QS, TOTAL_DOKKAI_QS } from '../data/index.js'
 import { SectionCard } from './ui/index.jsx'
 
 /**
  * @param {{
  *   scores: { goi: number|null, bunpou: number|null, dokkai: number|null },
+ *   sessions: { goi: object|null, bunpou: object|null, dokkai: object|null },
  *   onStart: (sectionKey: string) => void,
  *   onResults: () => void,
+ *   onReview: (sectionKey: string) => void,
+ *   onReset: () => void,
  * }} props
  */
-export default function Home({ scores, onStart, onResults }) {
-  const totals = { goi: 20, bunpou: 20, dokkai: TOTAL_DOKKAI_QS }
+export default function Home({ scores, sessions, onStart, onResults, onReview, onReset }) {
+  const totals = { goi: TOTAL_GOI_QS, bunpou: TOTAL_BUNPOU_QS, dokkai: TOTAL_DOKKAI_QS }
 
   const totalScore = (scores.goi ?? 0) + (scores.bunpou ?? 0) + (scores.dokkai ?? 0)
-  const totalMax = 20 + 20 + TOTAL_DOKKAI_QS
+  const totalMax = TOTAL_GOI_QS + TOTAL_BUNPOU_QS + TOTAL_DOKKAI_QS
   const allDone = SECTIONS.every((s) => scores[s.key] !== null)
   const pct = allDone ? Math.round((totalScore / totalMax) * 100) : null
 
@@ -83,7 +86,7 @@ export default function Home({ scores, onStart, onResults }) {
           fontWeight: 600,
         }}
       >
-        🔥 試験まであと2週間！ファイトー！ &nbsp;|&nbsp; 全部で {20 + 20 + TOTAL_DOKKAI_QS} 問
+        🔥 試験まであと2週間！ファイトー！ &nbsp;|&nbsp; 全部で {totalMax} 問
       </div>
 
       {/* ── Section cards ── */}
@@ -98,7 +101,9 @@ export default function Home({ scores, onStart, onResults }) {
             section={s}
             score={scores[s.key]}
             totalQ={totals[s.key]}
+            hasSession={!!sessions?.[s.key]}
             onStart={() => onStart(s.key)}
+            onReview={() => onReview(s.key)}
           />
         ))}
 
@@ -146,6 +151,27 @@ export default function Home({ scores, onStart, onResults }) {
             <br />• 時間配分：語彙30分 → 文法50分 → 読解40分 が目安
           </div>
         </div>
+
+        {/* Reset progress — small, unobtrusive */}
+        {(scores.goi !== null || scores.bunpou !== null || scores.dokkai !== null) && (
+          <div style={{ textAlign: 'center', marginTop: 18 }}>
+            <button
+              onClick={onReset}
+              style={{
+                fontSize: 11,
+                color: '#9CA3AF',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 4,
+                fontFamily: 'inherit',
+                textDecoration: 'underline',
+              }}
+            >
+              🔄 進捗をリセットする
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -115,10 +115,12 @@ export function ExplanationBox({ isCorrect, correctLabel, explanation }) {
  *   section: import('../../data/index').GOI_CONFIG,
  *   score: number|null,
  *   totalQ: number,
+ *   hasSession: boolean,
  *   onStart: () => void,
+ *   onReview: () => void,
  * }} props
  */
-export function SectionCard({ section: s, score, totalQ, onStart }) {
+export function SectionCard({ section: s, score, totalQ, hasSession, onStart, onReview }) {
   const done = score !== null
   const pct = done ? Math.round((score / totalQ) * 100) : null
   const barColor =
@@ -194,6 +196,23 @@ export function SectionCard({ section: s, score, totalQ, onStart }) {
               >
                 再挑戦
               </button>
+              {hasSession && (
+                <button
+                  onClick={onReview}
+                  style={{
+                    fontSize: 10,
+                    color: '#9CA3AF',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    fontFamily: 'inherit',
+                    fontWeight: 600,
+                  }}
+                >
+                  📝 復習
+                </button>
+              )}
             </>
           ) : (
             <button
